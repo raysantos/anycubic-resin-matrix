@@ -15,7 +15,7 @@ A single-page, sortable comparison of every resin Anycubic currently sells, buil
 | Printing | Normal exposure time, wash method (IPA or water), odor |
 | Cost | 1 kg price, bulk $/kg |
 
-Click any column header to sort. Filter by family, water-washable only, or hide sold-out resins. ★ marks the best value in each column.
+Click any column header to sort, and hover (or tap) a resin's name to see what it's good for. Filter by family, water-washable only, or hide sold-out resins. ★ marks the best value in each column.
 
 ## Data notes
 

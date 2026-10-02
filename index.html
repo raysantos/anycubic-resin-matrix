@@ -10,7 +10,7 @@
 <style>
 /* Layout: Anycubic store styling — white ground, pale-grey panels, #005AFF pill controls, MiSans Latin (Inter fallback, as on anycubic.com). Summary picks, filter pills, then one sortable matrix with in-cell range bars. */
 :root{
-  --namecol:clamp(180px,15vw,236px);
+  --namecol:clamp(170px,13vw,210px);
   --bg:#ffffff; --surface:#ffffff; --panel:#f7f8fa; --ink:#000000; --head:#191919; --muted:#565a5b; --sub:#999ca1; --line:#eff0f1; --line2:#c2c4c7;
   --accent:#005aff; --accent-ink:#ffffff; --accent-soft:#e0ebff; --bar:#99bdff; --good:#166534; --good-soft:#effdf4; --warn:#a06207;
   --f-head:"MiSansLatin-Semibold","MiSans Latin","MiSans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -81,13 +81,16 @@ td.name .oos{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-sp
 tbody tr:hover td{background:var(--panel)}
 td.num{font-size:12.5px;color:var(--ink);line-height:1.35}
 td.num .val{white-space:nowrap}
-.meta{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin-top:6px}
-.odor{font-size:11.5px;color:var(--sub)}
-.use{display:block;font-size:12px;color:var(--muted);line-height:1.4;margin-top:5px}
 td.lead span.val{color:var(--accent);font-weight:600}
 td.lead span.val::after{content:" ★";font-size:10px}
 td.na{color:var(--sub)}
-td.txt{font-size:13px;color:var(--muted);min-width:180px;max-width:250px;white-space:normal}
+td.txt{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.nm{all:unset;cursor:help;display:inline-flex;align-items:flex-start;gap:6px;border-radius:4px}
+.nm:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nm .i{flex:none;width:15px;height:15px;margin-top:3px;color:var(--sub);transition:color .15s}
+.nm:hover .i,.nm:focus-visible .i,.nm[aria-expanded="true"] .i{color:var(--accent)}
+.tip{position:fixed;z-index:50;max-width:280px;background:var(--head);color:var(--bg);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.18);pointer-events:none}
+.tip b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;opacity:.65;margin-bottom:3px}
 .wash{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:60px;background:var(--panel);color:var(--muted);white-space:nowrap}
 .wash.w{background:var(--good-soft);color:var(--good)}
 
@@ -97,7 +100,7 @@ td.txt{font-size:13px;color:var(--muted);min-width:180px;max-width:250px;white-s
 .notes p{margin:0}
 .notes a{color:var(--accent);text-decoration:none}
 .notes a:hover{text-decoration:underline}
-@media (max-width:640px){:root{--namecol:156px}.use{display:none}td.name b{font-size:13.5px}
+@media (max-width:640px){:root{--namecol:150px}td.name b{font-size:13.5px}
 .count{margin-left:0;width:100%}input[type=search]{width:100%}}
 </style>
 </head>
@@ -169,7 +172,9 @@ const R=[
 ];
 // columns: key, label, unit, type, better ('hi'|'lo'|null), fmt
 const C=[
- {k:"n",l:"Resin",u:"wash · odor · best for",t:"name"},
+ {k:"n",l:"Resin",u:"hover name for uses",t:"name"},
+ {k:"w",l:"Wash",u:"cleaning",t:"wash"},
+ {k:"od",l:"Odor",u:"per Anycubic",t:"txt"},
  {k:"p",l:"Price",u:"$ / 1 kg",t:"num",b:"lo",d:2,pre:"$"},
  {k:"k",l:"Bulk",u:"$ / kg",t:"num",b:"lo",d:2,pre:"$"},
  {k:"hd",l:"Hardness",u:"Shore D",t:"num",b:"hi"},
@@ -216,7 +221,7 @@ function render(){
  const L=leaders(rows);
  document.getElementById("tb").innerHTML=rows.map(r=>"<tr data-n=\""+esc(r.n)+"\">"+C.map(c=>{
   const v=r[c.k];
-  if(c.t==="name")return`<td class="name"><span class="fam">${esc(r.f)}</span>${r.oos?'<span class="oos">sold out</span>':""}<b>${esc(v)}</b><span class="meta"><span class="wash${r.w.includes("Water")?" w":""}">${esc(r.w)}</span>${r.od&&r.od!=="—"?`<span class="odor">${esc(r.od)} odor</span>`:""}</span><span class="use">${esc(r.use)}</span></td>`;
+  if(c.t==="name")return`<td class="name"><span class="fam">${esc(r.f)}</span>${r.oos?'<span class="oos">sold out</span>':""}<button type="button" class="nm" data-use="${esc(r.use)}" aria-expanded="false"><b>${esc(v)}</b><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button></td>`;
   if(c.t==="wash")return`<td><span class="wash${v.includes("Water")?" w":""}">${esc(v)}</span></td>`;
   if(c.t==="txt")return`<td class="txt">${esc(v)}</td>`;
   const x=rng(v);if(!x)return`<td class="num na">—</td>`;
@@ -239,6 +244,25 @@ const P=[
 document.getElementById("picks").innerHTML=P.map(p=>{const c=C.find(x=>x.k===p.k);let best=null;R.forEach(r=>{const m=mid(r[p.k]);if(m==null)return;if(!best||(p.b==="hi"?m>mid(best[p.k]):m<mid(best[p.k])))best=r});
  return`<button class="pick" type="button" data-sort="${p.k}" data-dir="${p.b==="hi"?-1:1}"><span class="k">${esc(p.l)}</span><span class="n">${esc(best.n)}</span><span class="v">${esc(fmt(c,best[p.k]))} ${esc(c.u.split(" ·")[0].replace("$ ",""))}</span></button>`}).join("");
 document.querySelectorAll(".pick").forEach(b=>b.onclick=()=>{st.sort=b.dataset.sort;st.dir=+b.dataset.dir;render();document.querySelector(".tablebox").scrollIntoView({behavior:"smooth",block:"start"})});
+
+// "good for" tooltip on resin names (hover, keyboard focus, or tap)
+(function(){
+  const tip=document.createElement("div");tip.className="tip";tip.id="useTip";tip.setAttribute("role","tooltip");tip.hidden=true;document.body.appendChild(tip);
+  let cur=null;
+  const show=el=>{cur=el;tip.innerHTML="<b>Good for</b>"+esc(el.dataset.use);tip.hidden=false;el.setAttribute("aria-expanded","true");el.setAttribute("aria-describedby","useTip");
+    const r=el.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;let x=r.left,y=r.bottom+8;
+    if(x+tw>innerWidth-12)x=innerWidth-12-tw;if(x<12)x=12;if(y+th>innerHeight-12)y=r.top-th-8;tip.style.left=x+"px";tip.style.top=y+"px"};
+  const hide=()=>{if(cur){cur.setAttribute("aria-expanded","false");cur.removeAttribute("aria-describedby")}cur=null;tip.hidden=true};
+  const tb=document.getElementById("tb");
+  tb.addEventListener("mouseover",e=>{const el=e.target.closest(".nm");if(el&&el!==cur)show(el)});
+  tb.addEventListener("mouseout",e=>{const el=e.target.closest(".nm");if(el&&!el.contains(e.relatedTarget))hide()});
+  tb.addEventListener("focusin",e=>{const el=e.target.closest(".nm");if(el)show(el)});
+  tb.addEventListener("focusout",hide);
+  tb.addEventListener("click",e=>{const el=e.target.closest(".nm");if(!el)return;if(cur===el&&e.pointerType!=="mouse")hide();else show(el)});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()});
+  document.addEventListener("pointerdown",e=>{if(!e.target.closest(".nm"))hide()});
+  document.querySelector(".tablebox").addEventListener("scroll",hide,{passive:true});addEventListener("scroll",hide,{passive:true});
+})();
 
 // light / dark button: icon shows the current mode; follows the device until clicked, then remembers
 (function(){
