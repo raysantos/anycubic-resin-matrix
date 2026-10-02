@@ -10,7 +10,7 @@
 <style>
 /* Layout: Anycubic store styling — white ground, pale-grey panels, #005AFF pill controls, MiSans Latin (Inter fallback, as on anycubic.com). Summary picks, filter pills, then one sortable matrix with in-cell range bars. */
 :root{
-  --namecol:clamp(170px,13vw,210px);
+  --namecol:clamp(200px,15vw,250px);
   --bg:#ffffff; --surface:#ffffff; --panel:#f7f8fa; --ink:#000000; --head:#191919; --muted:#565a5b; --sub:#999ca1; --line:#eff0f1; --line2:#c2c4c7;
   --accent:#005aff; --accent-ink:#ffffff; --accent-soft:#e0ebff; --bar:#99bdff; --good:#166534; --good-soft:#effdf4; --warn:#a06207;
   --f-head:"MiSansLatin-Semibold","MiSans Latin","MiSans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -65,9 +65,9 @@ input[type=search]:focus{outline:none;border-color:var(--accent)}
 
 .tablebox{overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-inline-start:var(--namecol);overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;background:var(--surface);border:1px solid var(--line);border-radius:12px}
 table{border-collapse:separate;border-spacing:0;width:100%;min-width:880px;table-layout:auto;font-variant-numeric:tabular-nums}
-th,td{padding:10px 8px;scroll-snap-align:start;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th,td{padding:11px 10px;scroll-snap-align:start;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
 tbody tr:last-child td{border-bottom:0}
-thead th{position:sticky;top:0;background:var(--panel);z-index:2;font:700 11px var(--f-body);color:var(--head);text-transform:uppercase;letter-spacing:.3px;white-space:normal;cursor:pointer;user-select:none;line-height:1.3}
+thead th{position:sticky;top:0;background:var(--panel);z-index:2;font:700 11px var(--f-body);color:var(--head);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;cursor:pointer;user-select:none;line-height:1.3;vertical-align:middle}
 thead th .u{display:block;font:400 11px var(--f-body);text-transform:none;letter-spacing:0;color:var(--sub);margin-top:2px}
 thead th[aria-sort] .arr::after{content:" ↕";opacity:.3}
 thead th[aria-sort="ascending"] .arr::after{content:" ↑";opacity:1;color:var(--accent)}
@@ -141,7 +141,7 @@ td.txt{font-size:12.5px;color:var(--muted);white-space:nowrap}
   </div>
 
   <div class="legend">
-    <span>★ Best in column (higher or lower, as noted in each header)</span>
+    <span>★ Best in each column. Hover a column name for what it measures and its units.</span>
   </div>
 
   <section class="notes">
@@ -212,9 +212,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 // header
 const hrow=document.getElementById("hrow");
 C.forEach((c,i)=>{const th=document.createElement("th");th.tabIndex=0;th.scope="col";if(c.t==="name")th.className="name";
- const dir=c.b==="hi"?" · higher ★":c.b==="lo"?" · lower ★":"";
- th.innerHTML=`<span class="arr">${esc(c.l)}</span>${c.u||dir?`<span class="u">${esc((c.u||"")+dir)}</span>`:""}`;
- th.setAttribute("aria-sort","none");if(colTip[c.k]){th.dataset.tip=colTip[c.k];th.dataset.tipTitle=c.l}
+ th.innerHTML=`<span class="arr">${esc(c.l)}</span>`;
+ th.setAttribute("aria-sort","none");if(colTip[c.k]){th.dataset.tip=colTip[c.k]+(c.b?" ★ marks the "+(c.b==="hi"?"highest":"lowest")+" value.":"");th.dataset.tipTitle=c.l+(c.u&&c.t==="num"?" · "+c.u.split(" ·")[0]:"")}
  const go=()=>{if(st.sort===c.k)st.dir*=-1;else{st.sort=c.k;st.dir=c.b==="lo"||c.t!=="num"?1:-1}render()};
  th.addEventListener("click",go);th.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
  hrow.appendChild(th)});
