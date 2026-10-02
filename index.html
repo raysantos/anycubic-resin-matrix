@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Sortable, filterable comparison of every current Anycubic 3D printing resin: hardness, tensile strength, elongation, impact, shrinkage, viscosity, price and more.">
+<title>Anycubic Resin Matrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: Anycubic store styling — white ground, pale-grey panels, #005AFF pill controls, MiSans Latin (Inter fallback, as on anycubic.com). Summary picks, filter pills, then one sortable matrix with in-cell range bars. */
+:root{
+  --bg:#ffffff; --surface:#ffffff; --panel:#f7f8fa; --ink:#000000; --head:#191919; --muted:#565a5b; --sub:#999ca1; --line:#eff0f1; --line2:#c2c4c7;
+  --accent:#005aff; --accent-ink:#ffffff; --accent-soft:#e0ebff; --bar:#99bdff; --good:#166534; --good-soft:#effdf4; --warn:#a06207;
+  --f-head:"MiSansLatin-Semibold","MiSans Latin","MiSans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"MiSansLatin-Regular","MiSans Latin","MiSans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1012; --surface:#16171a; --panel:#1d1f23; --ink:#f4f5f7; --head:#ffffff; --muted:#b4b7bc; --sub:#8a8e94; --line:#26282d; --line2:#3a3d43;
+  --accent:#4d8bff; --accent-ink:#ffffff; --accent-soft:#132a55; --bar:#2f5fb8; --good:#5ad48f; --good-soft:#12301f; --warn:#f0b65a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1012; --surface:#16171a; --panel:#1d1f23; --ink:#f4f5f7; --head:#ffffff; --muted:#b4b7bc; --sub:#8a8e94; --line:#26282d; --line2:#3a3d43;
+  --accent:#4d8bff; --accent-ink:#ffffff; --accent-soft:#132a55; --bar:#2f5fb8; --good:#5ad48f; --good-soft:#12301f; --warn:#f0b65a; color-scheme:dark}
+*{box-sizing:border-box}
+html{color-scheme:light}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;padding-inline:clamp(16px,3vw,40px);padding-block:calc(32px + env(safe-area-inset-top,0px)) calc(56px + env(safe-area-inset-bottom,0px));margin:0;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1500px;margin:0 auto;display:grid;gap:28px}
+header{display:grid;gap:10px}
+.eyebrow{font-family:var(--f-body);font-weight:700;font-size:11px;letter-spacing:.3px;text-transform:uppercase;color:var(--sub)}
+.eyebrow b{color:var(--accent);font-weight:700}
+h1{font-family:var(--f-head);font-weight:600;font-size:clamp(28px,3.6vw,40px);line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.32px;color:var(--head)}
+.lede{color:var(--muted);max-width:70ch;margin:0;font-size:15px}
+h2{font-family:var(--f-head);font-weight:600;font-size:18px;margin:0;letter-spacing:-.32px;color:var(--head)}
+
+.picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:12px}
+.pick{background:var(--panel);border:1px solid transparent;border-radius:12px;padding:14px 16px;display:grid;gap:3px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s}
+.pick:hover,.pick:focus-visible{border-color:var(--accent);outline:none}
+.pick .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--sub)}
+.pick .n{font-family:var(--f-head);font-weight:600;font-size:16px;color:var(--head);letter-spacing:-.2px;line-height:1.25}
+.pick .v{font-size:13px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 13px var(--f-body);border:1px solid var(--line2);background:var(--surface);color:var(--ink);border-radius:60px;padding:7px 16px;cursor:pointer;transition:background .15s,border-color .15s}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-family:var(--f-head);font-weight:500}
+.chip:focus-visible,.toggle input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toggle{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--ink);cursor:pointer}
+.toggle input{accent-color:var(--accent);width:16px;height:16px}
+.count{margin-left:auto;font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
+input[type=search]{font:inherit;font-size:14px;padding:8px 16px;border:1px solid transparent;border-radius:60px;background:var(--panel);color:var(--ink);min-width:0;width:220px}
+input[type=search]::placeholder{color:var(--sub)}
+input[type=search]:focus{outline:none;border-color:var(--accent)}
+
+.tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+tbody tr:last-child td{border-bottom:0}
+thead th{position:sticky;top:0;background:var(--panel);z-index:2;font:700 11px var(--f-body);color:var(--head);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;cursor:pointer;user-select:none}
+thead th .u{display:block;font:400 11px var(--f-body);text-transform:none;letter-spacing:0;color:var(--sub);margin-top:2px}
+thead th[aria-sort] .arr::after{content:" ↕";opacity:.3}
+thead th[aria-sort="ascending"] .arr::after{content:" ↑";opacity:1;color:var(--accent)}
+thead th[aria-sort="descending"] .arr::after{content:" ↓";opacity:1;color:var(--accent)}
+thead th:hover{color:var(--accent)}
+thead th:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+th.name,td.name{position:sticky;left:0;z-index:1;background:var(--surface);min-width:200px;max-width:230px;border-right:1px solid var(--line)}
+thead th.name{z-index:3;background:var(--panel)}
+td.name b{font-family:var(--f-head);font-size:15px;font-weight:600;display:block;line-height:1.25;color:var(--head);letter-spacing:-.2px;margin-top:2px}
+td.name .fam{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--accent)}
+td.name .oos{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--warn);margin-left:6px}
+tbody tr:hover td{background:var(--panel)}
+td.num{font-size:13px;white-space:nowrap;min-width:104px;color:var(--ink)}
+.rbar{position:relative;height:4px;background:var(--line);border-radius:4px;margin-top:6px}
+.rbar i{position:absolute;top:0;bottom:0;background:var(--bar);border-radius:4px;min-width:4px}
+td.lead .rbar i{background:var(--accent)}
+td.lead span.val{color:var(--accent);font-weight:600}
+td.lead span.val::after{content:" ★";font-size:10px}
+td.na{color:var(--sub)}
+td.txt{font-size:13px;color:var(--muted);min-width:180px;max-width:250px;white-space:normal}
+.wash{display:inline-block;font-size:12px;font-weight:500;padding:3px 10px;border-radius:60px;background:var(--panel);color:var(--muted);white-space:nowrap}
+.wash.w{background:var(--good-soft);color:var(--good)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 24px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{display:inline-block;width:24px;height:4px;border-radius:4px;background:var(--bar)}
+.sw.a{background:var(--accent)}
+.notes{display:grid;gap:10px;font-size:14px;color:var(--muted);max-width:90ch;background:var(--panel);border-radius:12px;padding:20px 24px}
+.notes p{margin:0}
+.notes a{color:var(--accent);text-decoration:none}
+.notes a:hover{text-decoration:underline}
+@media (max-width:640px){.count{margin-left:0;width:100%}input[type=search]{width:100%}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><b>Resin</b> · 405 nm photopolymer · 17 resins · Specs as of Oct 2, 2026</div>
+    <h1>Anycubic Resin Matrix</h1>
+    <p class="lede">Every resin Anycubic currently lists, with its published mechanical, physical and print properties side by side. Click any column to sort; the bar under each value shows where its range sits against the rest of the lineup.</p>
+  </header>
+
+  <section aria-label="Quick picks" style="display:grid;gap:10px">
+    <h2>Leaders by property</h2>
+    <div class="picks" id="picks"></div>
+  </section>
+
+  <div class="controls">
+    <div class="chips" id="chips" role="group" aria-label="Filter by family"></div>
+    <label class="toggle" for="wOnly"><input type="checkbox" id="wOnly"> Water-washable only</label>
+    <label class="toggle" for="inStock"><input type="checkbox" id="inStock"> Hide sold out</label>
+    <input type="search" id="q" placeholder="Search name or use…" aria-label="Search resins">
+    <div class="count" id="count"></div>
+  </div>
+
+  <div class="tablebox">
+    <table id="t">
+      <thead><tr id="hrow"></tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw"></i>Published range, scaled to lineup min–max</span>
+    <span><i class="sw a"></i>★ Best in column (direction noted in header)</span>
+  </div>
+
+  <section class="notes">
+    <h2>About the numbers</h2>
+    <p>Values are Anycubic's own technical data, copied from each product page's Specification tab. Anycubic notes they vary with printer, post-cure and test equipment, so treat small differences as noise.</p>
+    <p>Anycubic's pages swap two labels: the figure they call "Bending Modulus" (about 15–70 MPa) is really flexural strength, and "Bending Strength" (about 350–3,300 MPa) is really flexural modulus. This matrix uses the corrected names. Where a collection listing and the product TDS disagreed (Water-Wash ABS-Like 3.0 hardness and elongation, BJD tensile, ABS-Like Pro 2 tensile), the product TDS value is shown.</p>
+    <p>Only ABS-Like Resin Pro 2 publishes a heat deflection temperature (60–65 °C). High Clear Resin's 92% light transmittance comes from its feature copy. Prices are the 1 kg US-store price on Oct 2, 2026; "bulk $/kg" is the promo rate for multi-kg orders. Both change often.</p>
+    <p>Source: <a href="https://store.anycubic.com/collections/uv-resin" target="_blank" rel="noopener">Anycubic resin collection</a> and the individual product pages.</p>
+  </section>
+</div>
+
+<script>
+const R=[
+ {n:"Standard Resin",f:"Standard",w:"IPA",p:25.95,k:13.18,hd:[84,86],ts:[40,50],el:[12,16],fs:[50,60],fm:[1400,1600],ym:[1600,1800],iz:103,sh:[4.5,5.5],vi:[200,230],de:[1.13,1.13],ex:[2,3.6],od:"Distinct",use:"Figurines, architectural models, appearance prototypes"},
+ {n:"Standard Resin V2",f:"Standard",w:"IPA",p:28.31,k:14.09,hd:[80,83],ts:[35,45],el:[25,30],fs:[40,50],fm:[1500,2100],ym:[1200,1400],iz:192,sh:[4.3,5.6],vi:[250,350],de:[1.05,1.25],ex:[2.5,3],od:"Distinct",use:"Figures, electronics shells, snap-fits, fixtures, silicone-mold masters"},
+ {n:"16K Standard Resin",f:"Detail",w:"IPA",p:28.31,k:13.86,hd:[83,85],ts:[40,50],el:[12,16],fs:[50,70],fm:[2000,3000],ym:[1800,2800],iz:102,sh:[3,4],vi:[500,600],de:[1.05,1.10],ex:null,od:"Low",use:"Hyper-detailed miniatures, precision parts; matte finish, fewer vertical lines"},
+ {n:"14K Texture Resin",f:"Detail",w:"IPA",p:32.91,k:15.25,hd:[81,83],ts:[35,45],el:[23,30],fs:[45,55],fm:[2200,2500],ym:[1300,1500],iz:78,sh:[2,3],vi:[350,370],de:[1.08,1.11],ex:[2,3],od:"—",use:"Matte miniatures, micro-sculpture, architectural models (ceramic-powder fill)"},
+ {n:"DLP Craftsman Resin",f:"Detail",w:"IPA",p:35.39,k:17.95,hd:[80,83],ts:[36,52],el:[11,20],fs:[59,70],fm:[1200,1600],ym:[1300,1500],iz:83,sh:[3.72,4.24],vi:[150,250],de:[1.15,1.20],ex:[2,2.5],od:"Distinct",use:"Detailed figures, jewelry prototypes, silicone molds; nano-ceramic matte"},
+ {n:"ABS-Like Resin 2.0",f:"ABS-Like",w:"IPA",p:27.13,k:10.92,hd:[83,85],ts:[34,42],el:[20,25],fs:[45,55],fm:[1400,1800],ym:[1800,2200],iz:109,sh:[3.9,4.9],vi:[280,280],de:[1.06,1.09],ex:[1.5,2.3],od:"Low",use:"General functional parts, prototypes; drill and tap"},
+ {n:"ABS-Like Resin 3.0",f:"ABS-Like",w:"IPA",p:25.48,k:13.00,hd:[83,86],ts:[38,45],el:[25,30],fs:[50,65],fm:[1500,2000],ym:[1300,1700],iz:130,sh:[3.9,4.9],vi:[280,300],de:[1.06,1.09],ex:[2,3.6],od:"Minimal",use:"Mechanical assemblies, electronics chassis, auto parts"},
+ {n:"ABS-Like Resin Pro 2",f:"ABS-Like",w:"IPA",p:34.21,k:15.30,hd:[82,84],ts:[35,40],el:[35,40],fs:[40,45],fm:[1400,1800],ym:[1600,1800],iz:212,sh:[4.3,5.6],vi:[300,400],de:[1.05,1.25],ex:[1.5,3],od:"—",use:"Thin walls, moving joints, impact parts; HDT 60–65 °C"},
+ {n:"Water-Wash Resin 2.0",f:"Water-Wash",w:"Water / IPA",p:30.67,k:13.60,hd:[82,85],ts:[38,43],el:[16,22],fs:[48,60],fm:[2300,3000],ym:[1100,1300],iz:133,sh:[2.2,5.5],vi:[190,230],de:[1.07,1.09],ex:[2,2.5],od:"Slight",use:"Figurines, architectural models; crack-resistant long term"},
+ {n:"Water-Wash ABS-Like Resin 3.0",f:"Water-Wash",w:"Water / IPA",p:31.85,k:16.32,hd:[83,86],ts:[36,46],el:[35,45],fs:[40,50],fm:[2000,2500],ym:[1800,2300],iz:133,sh:[4,5],vi:[400,500],de:[1.07,1.09],ex:[2,3.6],od:"Slight",use:"Figures, prototypes, shells, fixtures, snap-ons"},
+ {n:"Water-Wash ABS-Like Resin V2",f:"Water-Wash",w:"Water / IPA",p:29.69,k:null,hd:[80,85],ts:[35,45],el:[30,40],fs:[40,50],fm:[1000,1200],ym:[900,1100],iz:118,sh:[4.3,5.6],vi:[180,200],de:[1.1,1.2],ex:[1.5,3],od:"Mild",use:"Action figures, prototypes, electronics housings",oos:true},
+ {n:"Tough Resin 2.0",f:"Tough",w:"IPA",p:42.47,k:24.00,hd:[82,84],ts:[30,42],el:[60,72],fs:[42,52],fm:[1500,2000],ym:[900,1100],iz:245,sh:[5.1,6.2],vi:[450,500],de:[1.10,1.15],ex:[1.5,3],od:"Low",use:"Structural parts, industrial prototypes, jigs, fixtures"},
+ {n:"Tough Resin Ultra",f:"Tough",w:"IPA",p:37.75,k:21.45,hd:[71,75],ts:[20,28],el:[70,80],fs:[15,25],fm:[350,800],ym:[350,450],iz:null,sh:[5.1,6.2],vi:[500,900],de:[1.05,1.25],ex:[1.5,3],od:"Near odorless",use:"Cable ties, snap-fits, articulated models, flexible fitting parts"},
+ {n:"High Speed Resin 2.0",f:"Specialty",w:"IPA",p:34.21,k:14.70,hd:[83,85],ts:[37,47],el:[16,20],fs:[52,65],fm:[1700,3300],ym:[1300,1500],iz:87,sh:[5,6],vi:[75,85],de:[1.14,1.14],ex:[1.5,2.8],od:"Slight",use:"Large cosplay props, fast prototypes; ~170 mm/h at 0.1 mm layers"},
+ {n:"Plant-Based UV Resin 2.0",f:"Specialty",w:"IPA",p:29.49,k:12.75,hd:[81,83],ts:[35,40],el:[18,20],fs:[42,48],fm:[1400,1600],ym:[1300,1500],iz:70,sh:[3.8,4.5],vi:[300,350],de:[1.09,1.10],ex:[2,2.5],od:"Odorless",use:"Figures, architectural models where odor matters (soybean-based)"},
+ {n:"BJD Wear-Resistant Resin",f:"Specialty",w:"IPA",p:46.13,k:23.85,hd:[82,84],ts:[35,45],el:[23,28],fs:[45,55],fm:[1500,2000],ym:[1300,1700],iz:70,sh:[2,4],vi:[400,500],de:[1.05,1.25],ex:[2,3],od:"Minimal",use:"Ball-jointed dolls; anti-yellowing, scratch- and wear-resistant"},
+ {n:"High Clear Resin",f:"Specialty",w:"IPA",p:42.47,k:20.80,hd:[77,79],ts:[28,38],el:[14,18],fs:[28,33],fm:[700,800],ym:[700,900],iz:105,sh:[3.72,4.24],vi:[200,300],de:[1.05,1.25],ex:[4,4],od:"Near odorless",use:"Transparent models, lampshades, display props; 92% light transmittance"}
+];
+// columns: key, label, unit, type, better ('hi'|'lo'|null), fmt
+const C=[
+ {k:"n",l:"Resin",t:"name"},
+ {k:"w",l:"Wash",t:"wash"},
+ {k:"p",l:"Price",u:"$ / 1 kg",t:"num",b:"lo",d:2,pre:"$"},
+ {k:"k",l:"Bulk",u:"$ / kg",t:"num",b:"lo",d:2,pre:"$"},
+ {k:"hd",l:"Hardness",u:"Shore D",t:"num",b:"hi"},
+ {k:"ts",l:"Tensile",u:"MPa",t:"num",b:"hi"},
+ {k:"el",l:"Elongation",u:"% at break",t:"num",b:"hi"},
+ {k:"iz",l:"Izod impact",u:"J/m",t:"num",b:"hi"},
+ {k:"fs",l:"Flex strength",u:"MPa",t:"num",b:"hi"},
+ {k:"fm",l:"Flex modulus",u:"MPa · stiffness",t:"num",b:null},
+ {k:"ym",l:"Young's mod.",u:"MPa · stiffness",t:"num",b:null},
+ {k:"sh",l:"Shrinkage",u:"% volume",t:"num",b:"lo"},
+ {k:"vi",l:"Viscosity",u:"mPa·s @25 °C",t:"num",b:"lo"},
+ {k:"de",l:"Density",u:"g/cm³",t:"num",b:null,d:2},
+ {k:"ex",l:"Exposure",u:"s / layer",t:"num",b:"lo"},
+ {k:"od",l:"Odor",t:"txt"},
+ {k:"use",l:"Best for",t:"txt"}
+];
+const fams=["All","Standard","Detail","ABS-Like","Water-Wash","Tough","Specialty"];
+const st={fam:"All",w:false,s:false,q:"",sort:null,dir:1};
+const rng=v=>v==null?null:(Array.isArray(v)?v:[v,v]);
+const mid=v=>{const r=rng(v);return r?(r[0]+r[1])/2:null};
+const scale={};
+C.filter(c=>c.t==="num").forEach(c=>{let lo=Infinity,hi=-Infinity;R.forEach(r=>{const x=rng(r[c.k]);if(x){lo=Math.min(lo,x[0]);hi=Math.max(hi,x[1])}});scale[c.k]=[lo,hi]});
+function fmt(c,v){const r=rng(v);if(!r)return"—";const f=x=>(c.pre||"")+(c.d!=null?x.toFixed(c.d):(Number.isInteger(x)?x.toLocaleString("en-US"):String(x)));return r[0]===r[1]?f(r[0]):f(r[0])+"–"+(c.pre?r[1].toFixed(c.d):f(r[1]).replace(c.pre||"",""))}
+function leaders(rows){const L={};C.filter(c=>c.b).forEach(c=>{let best=null;rows.forEach(r=>{const m=mid(r[c.k]);if(m==null)return;if(best==null||(c.b==="hi"?m>best:m<best))best=m});L[c.k]=best});return L}
+const esc=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+
+// header
+const hrow=document.getElementById("hrow");
+C.forEach((c,i)=>{const th=document.createElement("th");th.tabIndex=0;th.scope="col";if(c.t==="name")th.className="name";
+ const dir=c.b==="hi"?" · higher ★":c.b==="lo"?" · lower ★":"";
+ th.innerHTML=`<span class="arr">${esc(c.l)}</span>${c.u||dir?`<span class="u">${esc((c.u||"")+dir)}</span>`:""}`;
+ th.setAttribute("aria-sort","none");
+ const go=()=>{if(st.sort===c.k)st.dir*=-1;else{st.sort=c.k;st.dir=c.b==="lo"||c.t!=="num"?1:-1}render()};
+ th.addEventListener("click",go);th.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+ hrow.appendChild(th)});
+
+// chips
+const chips=document.getElementById("chips");
+fams.forEach(f=>{const b=document.createElement("button");b.className="chip";b.type="button";b.id="fam-"+f.replace(/\W/g,"");b.textContent=f;b.setAttribute("aria-pressed",f===st.fam);b.onclick=()=>{st.fam=f;[...chips.children].forEach(x=>x.setAttribute("aria-pressed",x.textContent===f));render()};chips.appendChild(b)});
+document.getElementById("wOnly").onchange=e=>{st.w=e.target.checked;render()};
+document.getElementById("inStock").onchange=e=>{st.s=e.target.checked;render()};
+document.getElementById("q").oninput=e=>{st.q=e.target.value.trim().toLowerCase();render()};
+
+function render(){
+ let rows=R.filter(r=>(st.fam==="All"||r.f===st.fam)&&(!st.w||r.w.includes("Water"))&&(!st.s||!r.oos)&&(!st.q||(r.n+" "+r.use+" "+r.f).toLowerCase().includes(st.q)));
+ if(st.sort){const c=C.find(x=>x.k===st.sort);rows=[...rows].sort((a,b)=>{if(c.t==="num"){const A=mid(a[c.k]),B=mid(b[c.k]);if(A==null)return 1;if(B==null)return -1;return(A-B)*st.dir}return String(a[c.k]).localeCompare(String(b[c.k]))*st.dir})}
+ [...hrow.children].forEach((th,i)=>th.setAttribute("aria-sort",C[i].k===st.sort?(st.dir===1?"ascending":"descending"):"none"));
+ const L=leaders(rows);
+ document.getElementById("tb").innerHTML=rows.map(r=>"<tr data-n=\""+esc(r.n)+"\">"+C.map(c=>{
+  const v=r[c.k];
+  if(c.t==="name")return`<td class="name"><span class="fam">${esc(r.f)}</span>${r.oos?'<span class="oos">sold out</span>':""}<b>${esc(v)}</b></td>`;
+  if(c.t==="wash")return`<td><span class="wash${v.includes("Water")?" w":""}">${esc(v)}</span></td>`;
+  if(c.t==="txt")return`<td class="txt">${esc(v)}</td>`;
+  const x=rng(v);if(!x)return`<td class="num na">—</td>`;
+  const [lo,hi]=scale[c.k],span=hi-lo||1,a=(x[0]-lo)/span*100,w=(x[1]-x[0])/span*100;
+  const lead=c.b&&rows.length>1&&mid(v)===L[c.k];
+  return`<td class="num${lead?" lead":""}"><span class="val">${fmt(c,v)}</span><div class="rbar" aria-hidden="true"><i style="left:${a.toFixed(1)}%;width:${w.toFixed(1)}%"></i></div></td>`}).join("")+"</tr>").join("");
+ document.getElementById("count").textContent=rows.length+" of "+R.length+" resins";
+}
+render();
+
+// quick picks (computed from the full lineup)
+const P=[
+ {k:"iz",l:"Most impact-resistant",b:"hi"},
+ {k:"el",l:"Most flexible",b:"hi"},
+ {k:"hd",l:"Hardest",b:"hi"},
+ {k:"ts",l:"Highest tensile",b:"hi"},
+ {k:"sh",l:"Lowest shrinkage",b:"lo"},
+ {k:"vi",l:"Thinnest / fastest",b:"lo"},
+ {k:"k",l:"Cheapest per kg",b:"lo"}
+];
+document.getElementById("picks").innerHTML=P.map(p=>{const c=C.find(x=>x.k===p.k);let best=null;R.forEach(r=>{const m=mid(r[p.k]);if(m==null)return;if(!best||(p.b==="hi"?m>mid(best[p.k]):m<mid(best[p.k])))best=r});
+ return`<button class="pick" type="button" data-sort="${p.k}" data-dir="${p.b==="hi"?-1:1}"><span class="k">${esc(p.l)}</span><span class="n">${esc(best.n)}</span><span class="v">${esc(fmt(c,best[p.k]))} ${esc(c.u.split(" ·")[0].replace("$ ",""))}</span></button>`}).join("");
+document.querySelectorAll(".pick").forEach(b=>b.onclick=()=>{st.sort=b.dataset.sort;st.dir=+b.dataset.dir;render();document.querySelector(".tablebox").scrollIntoView({behavior:"smooth",block:"start"})});
+</script>
+</body>
+</html>
