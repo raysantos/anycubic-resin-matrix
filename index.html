@@ -28,7 +28,14 @@ html{color-scheme:light}
 img{max-width:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;padding-inline:clamp(16px,3vw,40px);padding-block:calc(32px + env(safe-area-inset-top,0px)) calc(56px + env(safe-area-inset-bottom,0px));margin:0;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1680px;margin:0 auto;display:grid;gap:28px}
-header{display:grid;gap:10px}
+header{display:grid;gap:10px;position:relative;padding-right:132px}
+.theme{position:absolute;top:0;right:0;display:inline-flex;gap:2px;padding:3px;border-radius:60px;background:var(--panel);border:1px solid var(--line)}
+.theme button{display:inline-flex;align-items:center;gap:6px;font:500 12.5px var(--f-body);color:var(--muted);background:transparent;border:0;border-radius:60px;padding:6px 11px;cursor:pointer;transition:background .15s,color .15s}
+.theme button svg{width:14px;height:14px;flex:none}
+.theme button:hover{color:var(--ink)}
+.theme button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.theme button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:640px){header{padding-right:0;padding-top:44px}.theme button span{display:none}.theme button{padding:7px 9px}}
 .eyebrow{font-family:var(--f-body);font-weight:700;font-size:11px;letter-spacing:.3px;text-transform:uppercase;color:var(--sub)}
 .eyebrow b{color:var(--accent);font-weight:700}
 h1{font-family:var(--f-head);font-weight:600;font-size:clamp(28px,3.6vw,40px);line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.32px;color:var(--head)}
@@ -103,6 +110,10 @@ td.txt{font-size:13px;color:var(--muted);min-width:180px;max-width:250px;white-s
 
 <div class="wrap">
   <header>
+    <div class="theme" role="group" aria-label="Color theme">
+      <button type="button" id="th-light" data-t="light" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Light</span></button>
+      <button type="button" id="th-dark" data-t="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>Dark</span></button>
+    </div>
     <div class="eyebrow"><b>Resin</b> · 405 nm photopolymer · 17 resins · Specs as of Oct 2, 2026</div>
     <h1>Anycubic Resin Matrix</h1>
     <p class="lede">Every resin Anycubic currently lists, with its published mechanical, physical and print properties side by side. Click any column to sort; the bar under each value shows where its range sits against the rest of the lineup.</p>
@@ -237,6 +248,19 @@ const P=[
 document.getElementById("picks").innerHTML=P.map(p=>{const c=C.find(x=>x.k===p.k);let best=null;R.forEach(r=>{const m=mid(r[p.k]);if(m==null)return;if(!best||(p.b==="hi"?m>mid(best[p.k]):m<mid(best[p.k])))best=r});
  return`<button class="pick" type="button" data-sort="${p.k}" data-dir="${p.b==="hi"?-1:1}"><span class="k">${esc(p.l)}</span><span class="n">${esc(best.n)}</span><span class="v">${esc(fmt(c,best[p.k]))} ${esc(c.u.split(" ·")[0].replace("$ ",""))}</span></button>`}).join("");
 document.querySelectorAll(".pick").forEach(b=>b.onclick=()=>{st.sort=b.dataset.sort;st.dir=+b.dataset.dir;render();document.querySelector(".tablebox").scrollIntoView({behavior:"smooth",block:"start"})});
+
+// light / dark switch (defaults to the device setting; remembers the viewer's choice)
+(function(){
+  const root=document.documentElement,mq=matchMedia("(prefers-color-scheme: dark)");
+  const btns=[...document.querySelectorAll(".theme button")];
+  let saved=null;try{saved=localStorage.getItem("acrm-theme")}catch(e){}
+  const eff=()=>root.dataset.theme||(mq.matches?"dark":"light");
+  const sync=()=>btns.forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===eff()));
+  if(saved==="light"||saved==="dark")root.dataset.theme=saved;
+  btns.forEach(b=>b.addEventListener("click",()=>{root.dataset.theme=b.dataset.t;try{localStorage.setItem("acrm-theme",b.dataset.t)}catch(e){}sync()}));
+  mq.addEventListener?mq.addEventListener("change",sync):mq.addListener(sync);
+  sync();
+})();
 </script>
 </body>
 </html>
