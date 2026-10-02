@@ -75,7 +75,7 @@ thead th:hover{color:var(--accent)}
 thead th:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 th.name,td.name{position:sticky;left:0;z-index:1;background:var(--surface);width:var(--namecol);min-width:var(--namecol);max-width:var(--namecol);padding-inline:14px 12px;scroll-snap-align:none;border-right:1px solid var(--line)}
 thead th.name{z-index:3;background:var(--panel)}
-td.name b{font-family:var(--f-head);font-size:15px;font-weight:600;display:block;line-height:1.25;color:var(--head);letter-spacing:-.2px;margin-top:2px}
+td.name b{font-family:var(--f-head);font-size:15px;font-weight:600;display:block;line-height:1.25;color:var(--head);letter-spacing:-.2px;}
 td.name .fam{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--accent)}
 td.name .oos{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--warn);margin-left:6px}
 tbody tr:hover td{background:var(--panel)}
@@ -85,7 +85,7 @@ td.lead span.val{color:var(--accent);font-weight:600}
 td.lead span.val::after{content:" ★";font-size:10px}
 td.na{color:var(--sub)}
 td.txt{font-size:12.5px;color:var(--muted);white-space:nowrap}
-.nm{all:unset;cursor:help;display:inline-flex;align-items:flex-start;gap:6px;border-radius:4px}
+.nm{all:unset;cursor:help;display:flex;width:fit-content;margin-top:2px;align-items:flex-start;gap:6px;border-radius:4px}
 .nm:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .nm .i{flex:none;width:15px;height:15px;margin-top:3px;color:var(--sub);transition:color .15s}
 .nm:hover .i,.nm:focus-visible .i,.nm[aria-expanded="true"] .i{color:var(--accent)}
