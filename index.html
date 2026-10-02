@@ -10,7 +10,7 @@
 <style>
 /* Layout: Anycubic store styling — white ground, pale-grey panels, #005AFF pill controls, MiSans Latin (Inter fallback, as on anycubic.com). Summary picks, filter pills, then one sortable matrix with in-cell range bars. */
 :root{
-  --namecol:236px;
+  --namecol:clamp(180px,15vw,236px);
   --bg:#ffffff; --surface:#ffffff; --panel:#f7f8fa; --ink:#000000; --head:#191919; --muted:#565a5b; --sub:#999ca1; --line:#eff0f1; --line2:#c2c4c7;
   --accent:#005aff; --accent-ink:#ffffff; --accent-soft:#e0ebff; --bar:#99bdff; --good:#166534; --good-soft:#effdf4; --warn:#a06207;
   --f-head:"MiSansLatin-Semibold","MiSans Latin","MiSans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -57,9 +57,9 @@ input[type=search]:focus{outline:none;border-color:var(--accent)}
 
 .tablebox{overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-inline-start:var(--namecol);overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;background:var(--surface);border:1px solid var(--line);border-radius:12px}
 table{border-collapse:separate;border-spacing:0;width:100%;min-width:880px;table-layout:auto;font-variant-numeric:tabular-nums}
-th,td{padding:10px 9px;scroll-snap-align:start;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th,td{padding:10px 8px;scroll-snap-align:start;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
 tbody tr:last-child td{border-bottom:0}
-thead th{position:sticky;top:0;background:var(--panel);z-index:2;font:700 11px var(--f-body);color:var(--head);text-transform:uppercase;letter-spacing:.3px;white-space:normal;cursor:pointer;user-select:none;line-height:1.3;min-width:62px}
+thead th{position:sticky;top:0;background:var(--panel);z-index:2;font:700 11px var(--f-body);color:var(--head);text-transform:uppercase;letter-spacing:.3px;white-space:normal;cursor:pointer;user-select:none;line-height:1.3}
 thead th .u{display:block;font:400 11px var(--f-body);text-transform:none;letter-spacing:0;color:var(--sub);margin-top:2px}
 thead th[aria-sort] .arr::after{content:" ↕";opacity:.3}
 thead th[aria-sort="ascending"] .arr::after{content:" ↑";opacity:1;color:var(--accent)}
@@ -73,7 +73,7 @@ td.name .fam{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-sp
 td.name .oos{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--warn);margin-left:6px}
 tbody tr:hover td{background:var(--panel)}
 td.num{font-size:12.5px;color:var(--ink);line-height:1.35}
-td.num .val{overflow-wrap:normal}
+td.num .val{white-space:nowrap}
 .meta{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin-top:6px}
 .odor{font-size:11.5px;color:var(--sub)}
 .use{display:block;font-size:12px;color:var(--muted);line-height:1.4;margin-top:5px}
@@ -185,7 +185,7 @@ const rng=v=>v==null?null:(Array.isArray(v)?v:[v,v]);
 const mid=v=>{const r=rng(v);return r?(r[0]+r[1])/2:null};
 const scale={};
 C.filter(c=>c.t==="num").forEach(c=>{let lo=Infinity,hi=-Infinity;R.forEach(r=>{const x=rng(r[c.k]);if(x){lo=Math.min(lo,x[0]);hi=Math.max(hi,x[1])}});scale[c.k]=[lo,hi]});
-function fmt(c,v){const r=rng(v);if(!r)return"—";const f=x=>(c.pre||"")+(c.d!=null?x.toFixed(c.d):(Number.isInteger(x)?x.toLocaleString("en-US"):String(x)));return r[0]===r[1]?f(r[0]):f(r[0])+"–\u200b"+(c.pre?r[1].toFixed(c.d):f(r[1]).replace(c.pre||"",""))}
+function fmt(c,v){const r=rng(v);if(!r)return"—";const f=x=>(c.pre||"")+(c.d!=null?x.toFixed(c.d):(Number.isInteger(x)?x.toLocaleString("en-US"):String(x)));return r[0]===r[1]?f(r[0]):f(r[0])+"–"+(c.pre?r[1].toFixed(c.d):f(r[1]).replace(c.pre||"",""))}
 function leaders(rows){const L={};C.filter(c=>c.b).forEach(c=>{let best=null;rows.forEach(r=>{const m=mid(r[c.k]);if(m==null)return;if(best==null||(c.b==="hi"?m>best:m<best))best=m});L[c.k]=best});return L}
 const esc=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
 
