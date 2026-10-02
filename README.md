@@ -15,7 +15,7 @@ A single-page, sortable comparison of every resin Anycubic currently sells, buil
 | Printing | Normal exposure time, wash method (IPA or water), odor |
 | Cost | 1 kg price, bulk $/kg |
 
-Click any column header to sort. Filter by family, water-washable only, or hide sold-out resins. The bar under each value shows where that resin's published range sits against the rest of the lineup, and ★ marks the best value in each column.
+Click any column header to sort. Filter by family, water-washable only, or hide sold-out resins. ★ marks the best value in each column.
 
 ## Data notes
 
@@ -26,7 +26,7 @@ Click any column header to sort. Filter by family, water-washable only, or hide 
 
 ## Updating the data
 
-All resin data lives in the `R` array near the top of the `<script>` in `index.html`. Each entry uses `[low, high]` ranges; add or edit a row and the bars, sorting and leaders recalculate automatically.
+All resin data lives in the `R` array near the top of the `<script>` in `index.html`. Each entry uses `[low, high]` ranges; add or edit a row and the sorting and ★ leaders recalculate automatically.
 
 ## Styling
 

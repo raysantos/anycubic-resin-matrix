@@ -84,9 +84,6 @@ td.num .val{white-space:nowrap}
 .meta{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin-top:6px}
 .odor{font-size:11.5px;color:var(--sub)}
 .use{display:block;font-size:12px;color:var(--muted);line-height:1.4;margin-top:5px}
-.rbar{position:relative;height:4px;background:var(--line);border-radius:4px;margin-top:6px}
-.rbar i{position:absolute;top:0;bottom:0;background:var(--bar);border-radius:4px;min-width:4px}
-td.lead .rbar i{background:var(--accent)}
 td.lead span.val{color:var(--accent);font-weight:600}
 td.lead span.val::after{content:" ★";font-size:10px}
 td.na{color:var(--sub)}
@@ -96,8 +93,6 @@ td.txt{font-size:13px;color:var(--muted);min-width:180px;max-width:250px;white-s
 
 .legend{display:flex;flex-wrap:wrap;gap:6px 24px;font-size:13px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:8px}
-.sw{display:inline-block;width:24px;height:4px;border-radius:4px;background:var(--bar)}
-.sw.a{background:var(--accent)}
 .notes{display:grid;gap:10px;font-size:14px;color:var(--muted);max-width:90ch;background:var(--panel);border-radius:12px;padding:20px 24px}
 .notes p{margin:0}
 .notes a{color:var(--accent);text-decoration:none}
@@ -116,7 +111,7 @@ td.txt{font-size:13px;color:var(--muted);min-width:180px;max-width:250px;white-s
     </div>
     <div class="eyebrow"><b>Resin</b> · 405 nm photopolymer · 17 resins · Specs as of Oct 2, 2026</div>
     <h1>Anycubic Resin Matrix</h1>
-    <p class="lede">Every resin Anycubic currently lists, with its published mechanical, physical and print properties side by side. Click any column to sort; the bar under each value shows where its range sits against the rest of the lineup.</p>
+    <p class="lede">Every resin Anycubic currently lists, with its published mechanical, physical and print properties side by side. Click any column to sort; ★ marks the best value in each column.</p>
   </header>
 
   <section aria-label="Quick picks" style="display:grid;gap:10px">
@@ -140,8 +135,7 @@ td.txt{font-size:13px;color:var(--muted);min-width:180px;max-width:250px;white-s
   </div>
 
   <div class="legend">
-    <span><i class="sw"></i>Published range, scaled to lineup min–max</span>
-    <span><i class="sw a"></i>★ Best in column (direction noted in header)</span>
+    <span>★ Best in column (higher or lower, as noted in each header)</span>
   </div>
 
   <section class="notes">
@@ -194,8 +188,6 @@ const fams=["All","Standard","Detail","ABS-Like","Water-Wash","Tough","Specialty
 const st={fam:"All",w:false,s:false,q:"",sort:null,dir:1};
 const rng=v=>v==null?null:(Array.isArray(v)?v:[v,v]);
 const mid=v=>{const r=rng(v);return r?(r[0]+r[1])/2:null};
-const scale={};
-C.filter(c=>c.t==="num").forEach(c=>{let lo=Infinity,hi=-Infinity;R.forEach(r=>{const x=rng(r[c.k]);if(x){lo=Math.min(lo,x[0]);hi=Math.max(hi,x[1])}});scale[c.k]=[lo,hi]});
 function fmt(c,v){const r=rng(v);if(!r)return"—";const f=x=>(c.pre||"")+(c.d!=null?x.toFixed(c.d):(Number.isInteger(x)?x.toLocaleString("en-US"):String(x)));return r[0]===r[1]?f(r[0]):f(r[0])+"–"+(c.pre?r[1].toFixed(c.d):f(r[1]).replace(c.pre||"",""))}
 function leaders(rows){const L={};C.filter(c=>c.b).forEach(c=>{let best=null;rows.forEach(r=>{const m=mid(r[c.k]);if(m==null)return;if(best==null||(c.b==="hi"?m>best:m<best))best=m});L[c.k]=best});return L}
 const esc=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
@@ -228,9 +220,8 @@ function render(){
   if(c.t==="wash")return`<td><span class="wash${v.includes("Water")?" w":""}">${esc(v)}</span></td>`;
   if(c.t==="txt")return`<td class="txt">${esc(v)}</td>`;
   const x=rng(v);if(!x)return`<td class="num na">—</td>`;
-  const [lo,hi]=scale[c.k],span=hi-lo||1,a=(x[0]-lo)/span*100,w=(x[1]-x[0])/span*100;
   const lead=c.b&&rows.length>1&&mid(v)===L[c.k];
-  return`<td class="num${lead?" lead":""}"><span class="val">${fmt(c,v)}</span><div class="rbar" aria-hidden="true"><i style="left:${a.toFixed(1)}%;width:${w.toFixed(1)}%"></i></div></td>`}).join("")+"</tr>").join("");
+  return`<td class="num${lead?" lead":""}"><span class="val">${fmt(c,v)}</span></td>`}).join("")+"</tr>").join("");
  document.getElementById("count").textContent=rows.length+" of "+R.length+" resins";
 }
 render();
