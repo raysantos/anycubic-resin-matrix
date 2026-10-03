@@ -23,6 +23,7 @@
   --bg:#0f1012; --surface:#16171a; --panel:#1d1f23; --ink:#f4f5f7; --head:#ffffff; --muted:#b4b7bc; --sub:#8a8e94; --line:#26282d; --line2:#3a3d43;
   --accent:#4d8bff; --accent-ink:#ffffff; --accent-soft:#132a55; --bar:#2f5fb8; --good:#5ad48f; --good-soft:#12301f; --warn:#f0b65a; color-scheme:dark}
 *{box-sizing:border-box}
+@media (prefers-reduced-motion:no-preference){html.fading,html.fading *{transition:background-color .3s ease,color .3s ease,border-color .3s ease!important}}
 html{color-scheme:light}
 [hidden]{display:none!important}
 img{max-width:100%}
@@ -80,6 +81,7 @@ thead th.name{z-index:3;background:var(--panel)}
 td.name b{font-family:var(--f-head);font-size:15px;font-weight:600;display:block;line-height:1.25;color:var(--head);letter-spacing:-.2px;}
 td.name .fam{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--accent)}
 td.name .oos{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--warn);margin-left:6px}
+tbody td{background:var(--surface)}
 tbody tr:hover td{background:var(--panel)}
 td.num{font-size:12.5px;color:var(--ink);line-height:1.35}
 td.num .val{white-space:nowrap}
@@ -191,6 +193,7 @@ const C=[
  {k:"de",l:"Density",u:"g/cm³",t:"num",b:null,d:2},
  {k:"ex",l:"Exposure",u:"s / layer",t:"num",b:"lo"}
 ];
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const fams=["All","Standard","Detail","ABS-Like","Water-Wash","Tough","Specialty"];
 const famInfo={
  "Standard":"Anycubic's everyday resins. They cure hard (Shore D 80–86) with crisp detail and the lowest prices, which suits display models, figures and look-alike prototypes. The original Standard Resin is on the brittle side; Standard V2 roughly doubles the stretch before breaking and lifts impact strength from 103 to 192 J/m for about $2 more.",
@@ -218,7 +221,7 @@ C.forEach((c,i)=>{const th=document.createElement("th");th.tabIndex=0;th.scope="
 
 // chips
 const chips=document.getElementById("chips");
-function famNote(){const p=document.getElementById("famnote"),t=famInfo[st.fam];p.hidden=!t;if(t)p.innerHTML="<b>"+esc(st.fam)+".</b> "+esc(t)}
+function famNote(){const p=document.getElementById("famnote"),t=famInfo[st.fam];p.hidden=!t;if(t){p.innerHTML="<b>"+esc(st.fam)+".</b> "+esc(t);if(!RM)p.animate([{opacity:0,transform:"translateY(-4px)"},{opacity:1,transform:"none"}],{duration:240,easing:"ease-out"})}}
 fams.forEach(f=>{const b=document.createElement("button");b.className="chip";b.type="button";b.id="fam-"+f.replace(/\W/g,"");b.textContent=f;b.setAttribute("aria-pressed",f===st.fam);b.onclick=()=>{st.fam=f;famNote();[...chips.children].forEach(x=>x.setAttribute("aria-pressed",x.textContent===f));render()};chips.appendChild(b)});
 document.getElementById("wOnly").onchange=e=>{st.w=e.target.checked;render()};
 document.getElementById("inStock").onchange=e=>{st.s=e.target.checked;render()};
@@ -229,6 +232,7 @@ function render(){
  if(st.sort){const c=C.find(x=>x.k===st.sort);rows=[...rows].sort((a,b)=>{if(c.t==="num"){const A=mid(a[c.k]),B=mid(b[c.k]);if(A==null)return 1;if(B==null)return -1;return(A-B)*st.dir}return String(a[c.k]).localeCompare(String(b[c.k]))*st.dir})}
  [...hrow.children].forEach((th,i)=>th.setAttribute("aria-sort",C[i].k===st.sort?(st.dir===1?"ascending":"descending"):"none"));
  const L=leaders(rows);
+ const tbEl=document.getElementById("tb"),before={};if(!RM)tbEl.querySelectorAll("tr").forEach(tr=>before[tr.dataset.n]=tr.getBoundingClientRect().top);
  document.getElementById("tb").innerHTML=rows.map(r=>"<tr data-n=\""+esc(r.n)+"\">"+C.map(c=>{
   const v=r[c.k];
   if(c.t==="name")return`<td class="name"><span class="fam">${esc(r.f)}</span>${r.oos?'<span class="oos">sold out</span>':""}<button type="button" class="nm" data-use="${esc(r.use)}" aria-expanded="false"><b>${esc(v)}</b><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button></td>`;
@@ -238,6 +242,9 @@ function render(){
   const lead=c.b&&rows.length>1&&mid(v)===L[c.k];
   return`<td class="num${lead?" lead":""}"><span class="val">${fmt(c,v)}</span></td>`}).join("")+"</tr>").join("");
  document.getElementById("count").textContent=rows.length+" of "+R.length+" resins";
+ if(!RM&&Object.keys(before).length){tbEl.querySelectorAll("tr").forEach(tr=>{const was=before[tr.dataset.n],now=tr.getBoundingClientRect().top;
+  if(was==null){tr.animate([{opacity:0},{opacity:1}],{duration:260,easing:"ease-out"})}
+  else if(Math.abs(was-now)>1){tr.animate([{transform:`translateY(${was-now}px)`},{transform:"none"}],{duration:420,easing:"cubic-bezier(.2,.8,.2,1)"})}})}
 }
 render();
 
@@ -283,7 +290,7 @@ document.querySelectorAll(".pick").forEach(b=>b.onclick=()=>{st.sort=b.dataset.s
   if(saved==="light"||saved==="dark")root.dataset.theme=saved;
   const eff=()=>root.dataset.theme||(mq.matches?"dark":"light");
   const sync=()=>{const m=eff();root.dataset.mode=m;const t="Switch to "+(m==="dark"?"light":"dark")+" mode";btn.setAttribute("aria-label",t);btn.title=t};
-  btn.addEventListener("click",()=>{const n=eff()==="dark"?"light":"dark";root.dataset.theme=n;try{localStorage.setItem("acrm-theme",n)}catch(e){}sync()});
+  btn.addEventListener("click",()=>{root.classList.add("fading");setTimeout(()=>root.classList.remove("fading"),400);const n=eff()==="dark"?"light":"dark";root.dataset.theme=n;try{localStorage.setItem("acrm-theme",n)}catch(e){}sync()});
   mq.addEventListener?mq.addEventListener("change",sync):mq.addListener(sync);
   sync();
 })();
