@@ -11,7 +11,7 @@
 /* Layout: Anycubic store styling — white ground, pale-grey panels, #005AFF pill controls, MiSans Latin (Inter fallback, as on anycubic.com). Summary picks, filter pills, then one sortable matrix with in-cell range bars. */
 :root{
   --namecol:clamp(200px,15vw,250px);
-  --bg:#ffffff; --surface:#ffffff; --panel:#f7f8fa; --ink:#000000; --head:#191919; --muted:#565a5b; --sub:#999ca1; --line:#eff0f1; --line2:#c2c4c7;
+  --bg:#eceef1; --surface:#ffffff; --panel:#f7f8fa; --ink:#000000; --head:#191919; --muted:#565a5b; --sub:#999ca1; --line:#eff0f1; --line2:#c2c4c7;
   --accent:#005aff; --accent-ink:#ffffff; --accent-soft:#e0ebff; --bar:#99bdff; --good:#166534; --good-soft:#effdf4; --warn:#a06207;
   --f-head:"MiSansLatin-Semibold","MiSans Latin","MiSans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-body:"MiSansLatin-Regular","MiSans Latin","MiSans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -42,7 +42,7 @@ h1{font-family:var(--f-head);font-weight:600;font-size:clamp(28px,3.6vw,40px);li
 h2{font-family:var(--f-head);font-weight:600;font-size:18px;margin:0;letter-spacing:-.32px;color:var(--head)}
 
 .picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:12px}
-.pick{background:var(--panel);border:1px solid transparent;border-radius:12px;padding:14px 16px;display:grid;gap:3px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s}
+.pick{background:var(--surface);border:1px solid transparent;border-radius:12px;padding:14px 16px;display:grid;gap:3px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:border-color .15s}
 .pick:hover,.pick:focus-visible{border-color:var(--accent);outline:none}
 .pick .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--sub)}
 .pick .n{font-family:var(--f-head);font-weight:600;font-size:16px;color:var(--head);letter-spacing:-.2px;line-height:1.25}
@@ -59,7 +59,7 @@ h2{font-family:var(--f-head);font-weight:600;font-size:18px;margin:0;letter-spac
 .toggle{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--ink);cursor:pointer}
 .toggle input{accent-color:var(--accent);width:16px;height:16px}
 .count{margin-left:auto;font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
-input[type=search]{font:inherit;font-size:14px;padding:8px 16px;border:1px solid transparent;border-radius:60px;background:var(--panel);color:var(--ink);min-width:0;width:220px}
+input[type=search]{font:inherit;font-size:14px;padding:8px 16px;border:1px solid transparent;border-radius:60px;background:var(--surface);color:var(--ink);min-width:0;width:220px}
 input[type=search]::placeholder{color:var(--sub)}
 input[type=search]:focus{outline:none;border-color:var(--accent)}
 
@@ -98,7 +98,7 @@ td.txt{font-size:12.5px;color:var(--muted);white-space:nowrap}
 
 .legend{display:flex;flex-wrap:wrap;gap:6px 24px;font-size:13px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:8px}
-.notes{display:grid;gap:10px;font-size:14px;color:var(--muted);max-width:90ch;background:var(--panel);border-radius:12px;padding:20px 24px}
+.notes{display:grid;gap:10px;font-size:14px;color:var(--muted);max-width:90ch;background:var(--surface);border-radius:12px;padding:20px 24px}
 .notes p{margin:0}
 .notes a{color:var(--accent);text-decoration:none}
 .notes a:hover{text-decoration:underline}
